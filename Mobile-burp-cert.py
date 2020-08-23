@@ -4,6 +4,16 @@ from base64 import b64decode,b64encode
 # Default is "127.0.0.1" and 5037
 client = AdbClient(host="127.0.0.1", port=5037)
 
+if len(sys.argv) < 2:
+    print(f"""
+    For full setup and certificates export use the argument 'full'
+    if you wish only to export burp certificates use the argument 'export'
+    Examples:\n
+    Usage: python3 {sys.argv[0]} full
+    Usage: python3 {sys.argv[0]} export
+    
+    """)
+
 def export_cert():
      cert = """
 -----BEGIN CERTIFICATE-----
@@ -72,11 +82,11 @@ try:
             print("[+] Only exporting burp certificates.")
             export_burp_certs()
             sys.exit()
-    else:
-        export_cert()
-        pushinto_device()
-        export_burp_certs()
-    #encode_certs()
+        if sys.argv[1] == "full":
+            export_cert()
+            pushinto_device()
+            export_burp_certs()
+            #encode_certs()
 
 except RuntimeError:
     print("Are you sure a device is connected bro?")
