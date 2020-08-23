@@ -67,9 +67,15 @@ def encode_certs():
 """        # I used this function to base64 encode the priv and cacert in order to add them into the script
 
 try:
-    export_cert()
-    pushinto_device()
-    export_burp_certs()
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "export":
+            print("[+] Only exporting burp certificates.")
+            export_burp_certs()
+            sys.exit()
+    else:
+        export_cert()
+        pushinto_device()
+        export_burp_certs()
     #encode_certs()
 
 except RuntimeError:
