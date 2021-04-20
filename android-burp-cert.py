@@ -1,7 +1,11 @@
-from ppadb.client import Client as AdbClient
 import os, sys
+try:
+    from ppadb.client import Client as AdbClient
+except ImportError:
+    print("[-] Error: %s -m pip install pure-python-adb" % sys.executable)
+    sys.exit() 
+
 from base64 import b64decode,b64encode
-# Default is "127.0.0.1" and 5037
 client = AdbClient(host="127.0.0.1", port=5037)
 
 if len(sys.argv) < 2:
@@ -15,8 +19,7 @@ if len(sys.argv) < 2:
     """)
 
 def export_cert():
-     cert = """
------BEGIN CERTIFICATE-----
+     cert = """-----BEGIN CERTIFICATE-----
 MIIDqDCCApCgAwIBAgIFAPKNPNUwDQYJKoZIhvcNAQELBQAwgYoxFDASBgNVBAYT
 C1BvcnRTd2lnZ2VyMRQwEgYDVQQIEwtQb3J0U3dpZ2dlcjEUMBIGA1UEBxMLUG9y
 dFN3aWdnZXIxFDASBgNVBAoTC1BvcnRTd2lnZ2VyMRcwFQYDVQQLEw5Qb3J0U3dp
@@ -37,8 +40,7 @@ f8gWdo13Lc0kuUVRo7KMHLemmkBovDVmjboYAL4SS9KZzESvlt+6WsMVCsrKnjrU
 9zmTlUTaFQFE+Gk0gvlv5SusXi9SCVJK6YLj9i/nHQRaXOJ9z4JuOoxa5CX8S2zH
 tNn2TRRFm7m7UwcbfG76umevpzNYt9ZCgm3a3AE2VWHXttshfPdUJ5cxhGGOfLuo
 y3J/3ClUn8x+IeuuLlYYYqIkf72U6bQjuyCsDw==
------END CERTIFICATE-----
-"""
+-----END CERTIFICATE-----"""
 
      with open("9a5ba575.0", "w+") as file:
          file.write(cert)
@@ -46,14 +48,16 @@ y3J/3ClUn8x+IeuuLlYYYqIkf72U6bQjuyCsDw==
 def pushinto_device():
     for device in client.devices():
         device.push(os.getcwd() + "\\9a5ba575.0", "/sdcard/9a5ba575.0")
+        device.root()
         device.remount()
-        device.shell("mv /sdcard/9a5ba575.0 /system/etc/security/cacerts/")
-        device.shell("chmod 644 /system/etc/security/cacerts/9a5ba575.0")
-        device.shell("chown root:root /system/etc/security/cacerts/9a5ba575.0")
+        device.shell("mount -o rw,remount /system ; mv /sdcard/9a5ba575.0 /system/etc/security/cacerts/ ; chmod 644 /system/etc/security/cacerts/9a5ba575.0 ; chown root:root /system/etc/security/cacerts/9a5ba575.0")
+        # device.shell("mv /sdcard/9a5ba575.0 /system/etc/security/cacerts/")
+        # device.shell("chmod 644 /system/etc/security/cacerts/9a5ba575.0")
+        # device.shell("chown root:root /system/etc/security/cacerts/9a5ba575.0")
         input("[+] Hit Enter to restart the device and finish the proccess")
         device.reboot()
-        print("[+]Rebooting!\n[+] Deleting certificate from file system")
-        os.remove("9a5ba575.0")
+        print("[+] Rebooting!\n[+] Deleting certificate from file system")
+        #os.remove("9a5ba575.0")
 
 def export_burp_certs():
     try:
